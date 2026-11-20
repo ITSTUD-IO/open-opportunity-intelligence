@@ -73,10 +73,20 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture for both categories; no inference of consulting buying intent.
 
-## Review 8 (pending)
+## Review 8
 - Posting: Staff Product Manager, Sail Core
 - URL: https://stripe.com/jobs/search?gh_jid=7913698
 - Board: greenhouse/stripe
 - Detected categories: platform_engineering, architecture
 - Matched terms: `developer experience`, `architecture` (description)
+- Human assessment: **both signals relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture for both categories; relevance does not establish consulting buying intent.
+
+## Review 9 (pending)
+- Posting: Full Stack Engineer, Developer & End User Experience Platform
+- URL: https://stripe.com/jobs/search?gh_jid=6567104
+- Board: greenhouse/stripe
+- Detected category: platform_engineering
+- Matched term: `developer experience` (description)
 - Human assessment: pending
