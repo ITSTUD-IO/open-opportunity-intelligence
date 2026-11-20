@@ -22,10 +22,21 @@
 - Note: Recruiting-role context does not substantiate an architecture initiative from the keyword alone.
 - Follow-up: Preserve as regression fixture; consider role/context-aware classification rather than blanket keyword removal.
 
-## Review 3 (pending)
+## Review 3
 - Posting: Software Engineer, Secure Devices
 - URL: https://stripe.com/jobs/search?gh_jid=7982720
 - Board: greenhouse/stripe
 - Detected categories: platform_engineering, cloud
 - Matched terms: `platform engineering`, `cloud`, `AWS` (description)
+- Human assessment: **both signals relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Note: Technical signal relevance does not establish consulting buying intent.
+- Follow-up: Preserve as positive regression fixture for both categories.
+
+## Review 4 (pending)
+- Posting: Staff Backend Engineer - CI Services
+- URL: https://stripe.com/jobs/search?gh_jid=8089815
+- Board: greenhouse/stripe
+- Detected categories: platform_engineering, devops, architecture
+- Matched terms: `developer experience` (platform_engineering); `DevOps`, `CI/CD` (devops); `architecture` (architecture), all in description
 - Human assessment: pending
