@@ -10,6 +10,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages" / "colle
 from job_boards import collect
 from collect_to_db import validate_snapshot
 from storage import initialize, upsert_snapshot
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages" / "signals"))
+from rules import summarize, detect
+from review import review_sample
 
 board = os.environ["GREENHOUSE_BOARD"]
 if not board or not board.replace("-", "").replace("_", "").isalnum():
@@ -50,6 +53,20 @@ with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
         cur.execute("SELECT count(*) FROM job_events WHERE event_type='changed'")
         assert cur.fetchone()[0] == 1
 
+groups = summarize(jobs)
+review_queue = review_sample(jobs, detect, per_category=3, negatives=5)
+signal_counts = groups[0]["categories"] if groups else {}
+postings_with_signals = groups[0]["postings_with_signals"] if groups else 0
+descriptions_present = sum(bool((j.get("raw") or {}).get("content")) for j in jobs)
+print("SIGNAL_REVIEW_SAMPLE " + json.dumps(review_queue, ensure_ascii=False, sort_keys=True))
+print("SIGNAL_EVIDENCE " + json.dumps({
+    "board": board, "postings_analyzed": len(jobs),
+    "postings_with_descriptions": descriptions_present,
+    "postings_with_signals": postings_with_signals,
+    "category_posting_counts": signal_counts,
+    "rule_version": "1",
+    "caveat": "Keyword signals, not verified consulting demand"
+}, sort_keys=True))
 print(json.dumps({"board": board, "fetched": len(jobs), "stored_first": stored_first,
                   "first_events": first, "stored_second": stored_second,
                   "second_events": second, "controlled_change_events": third}, sort_keys=True))
