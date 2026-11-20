@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 
 # Keep rules small, inspectable and versioned. Patterns use word boundaries to
 # avoid e.g. 'ai' matching 'maintain' or 'cloud' matching 'cloudy'.
-RULE_VERSION = "1"
+RULE_VERSION = "2"
 RULES = {
     "platform_engineering": (r"platform engineer(?:ing)?", r"internal developer platform", r"developer experience", r"\bbackstage\b"),
     "cloud": (r"\bcloud\b", r"\baws\b", r"\bazure\b", r"\bgcp\b", r"google cloud", r"\bkubernetes\b"),
@@ -22,6 +22,26 @@ RULES = {
 }
 COMPILED = {category: tuple(re.compile(r"(?<!\w)" + p + r"(?!\w)", re.I) for p in patterns)
             for category, patterns in RULES.items()}
+
+# Conservative context guards: weak generic keywords in non-engineering roles
+# are insufficient on their own. Strong category-specific terms still count.
+DESIGN_ROLE = re.compile(r"\\b(?:brand|graphic|visual|creative|product|marketing)\\s+design(?:er)?\\b|\\bdesigner\\b", re.I)
+RECRUITING_ROLE = re.compile(r"\\b(?:recruit(?:er|ing|ment)?|talent acquisition|sourcer)\\b", re.I)
+CLOUD_STRONG = re.compile(r"\\b(?:aws|azure|gcp|kubernetes)\\b|google cloud", re.I)
+ARCHITECTURE_STRONG = re.compile(r"\\b(?:solution|software|enterprise)\\s+architect\\b", re.I)
+
+
+def suppress_weak_match(category: str, title: str, matches: list[dict], fields: dict) -> bool:
+    """Suppress only ambiguous matches in roles known to cause false positives.
+
+    Strong technical evidence survives the guard; title is used for role
+    context, not an exact-job blacklist. This is a heuristic, not a verdict.
+    """
+    if category == "cloud" and DESIGN_ROLE.search(title):
+        return not CLOUD_STRONG.search(fields["title"] + " " + fields["description"])
+    if category == "architecture" and RECRUITING_ROLE.search(title):
+        return not ARCHITECTURE_STRONG.search(fields["title"] + " " + fields["description"])
+    return False
 
 
 class _VisibleText(HTMLParser):
@@ -73,7 +93,7 @@ def detect(job: dict) -> list[dict]:
                 match = pattern.search(value)
                 if match:
                     matches.append({"field": field, "term": match.group(0)})
-        if matches:
+        if matches and not suppress_weak_match(category, title, matches, fields):
             results.append({
                 "rule_version": RULE_VERSION,
                 "category": category,
