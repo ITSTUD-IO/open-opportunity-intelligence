@@ -103,10 +103,19 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture; relevance does not establish consulting buying intent.
 
-## Review 11 (pending)
+## Review 11
 - Posting: Strategy & Transformation Advisor (Enterprise Commerce Architecture)
 - URL: https://stripe.com/jobs/search?gh_jid=8139711
 - Board: greenhouse/stripe
 - Detected categories: architecture, cloud
 - Matched terms: `Architecture` (title and description), `cloud` (description)
+- Human assessment: **architecture and cloud relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture; distinguish Stripe's own demand from client-facing advisory work.
+
+## Review 12 (pending)
+- Posting: Account Executive, Product Sales (Data)
+- URL: https://stripe.com/jobs/search?gh_jid=8190059
+- Board: greenhouse/stripe
+- Detected categories: none (negative sample)
 - Human assessment: pending
