@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from html.parser import HTMLParser
+from html import unescape
 from collections import defaultdict
 from datetime import datetime, timezone
 
@@ -22,6 +24,35 @@ COMPILED = {category: tuple(re.compile(r"(?<!\w)" + p + r"(?!\w)", re.I) for p i
             for category, patterns in RULES.items()}
 
 
+class _VisibleText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.hidden = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self.hidden += 1
+        elif tag in ("p", "div", "li", "br", "h1", "h2", "h3"):
+            self.parts.append(" ")
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style"):
+            self.hidden = max(0, self.hidden - 1)
+        elif tag in ("p", "div", "li", "h1", "h2", "h3"):
+            self.parts.append(" ")
+
+    def handle_data(self, data):
+        if not self.hidden:
+            self.parts.append(data)
+
+
+def visible_text(value: str) -> str:
+    parser = _VisibleText()
+    parser.feed(value)
+    return unescape(" ".join(parser.parts))
+
+
 def detect(job: dict) -> list[dict]:
     """Return signals based on title and explicit description only.
 
@@ -31,7 +62,7 @@ def detect(job: dict) -> list[dict]:
     title = job.get("title") or ""
     raw = job.get("raw") or {}
     description = job.get("description") or (raw.get("description") if isinstance(raw, dict) else "") or ""
-    fields = {"title": title, "description": description}
+    fields = {"title": title, "description": visible_text(description) if isinstance(description, str) else ""}
     results = []
     for category, patterns in COMPILED.items():
         matches = []
