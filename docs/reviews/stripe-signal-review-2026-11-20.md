@@ -53,10 +53,20 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture for all four categories. This is not evidence of external consulting buying intent.
 
-## Review 6 (pending)
+## Review 6
 - Posting: Implementation Consultant, Professional Services
 - URL: https://stripe.com/jobs/search?gh_jid=8203977
 - Board: greenhouse/stripe
 - Detected categories: cloud, architecture, ai_engineering
 - Matched terms: `cloud`, `architecture`, `LLM` (description)
+- Human assessment: **all three signals relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture for all three categories; no inference of consulting buying intent.
+
+## Review 7 (pending)
+- Posting: Staff Engineer, Support Experiences
+- URL: https://stripe.com/jobs/search?gh_jid=8162185
+- Board: greenhouse/stripe
+- Detected categories: architecture, ai_engineering
+- Matched terms: `architecture`, `LLM`, `generative AI` (description)
 - Human assessment: pending
