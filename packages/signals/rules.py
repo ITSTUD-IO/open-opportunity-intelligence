@@ -61,7 +61,7 @@ def detect(job: dict) -> list[dict]:
     """
     title = job.get("title") or ""
     raw = job.get("raw") or {}
-    description = job.get("description") or (raw.get("description") if isinstance(raw, dict) else "") or ""
+    description = job.get("description") or ((raw.get("content") or raw.get("description")) if isinstance(raw, dict) else "") or ""
     fields = {"title": title, "description": visible_text(description) if isinstance(description, str) else ""}
     results = []
     for category, patterns in COMPILED.items():
