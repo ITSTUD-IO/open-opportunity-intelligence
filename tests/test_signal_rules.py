@@ -53,5 +53,52 @@ class SignalRulesTests(unittest.TestCase):
         self.assertEqual(summary[0]["company_key_type"], "source_board_unresolved")
 
 
+    def test_stripe_review_false_positive_design_cloud(self):
+        # Synthetic description reproduces the reviewed ambiguous match.
+        self.assertEqual(rules.detect(job("Senior Brand Designer, Link",
+                                         "Collaborate with the Cloud brand team")), [])
+
+    def test_stripe_review_false_positive_recruiter_architecture(self):
+        self.assertEqual(rules.detect(job("Technical Recruiter, OpenRouter (Fixed Term)",
+                                         "Recruit across Engineering and Architecture")), [])
+
+    def test_context_guard_preserves_strong_technical_evidence(self):
+        self.assertEqual({s["category"] for s in rules.detect(job(
+            "Senior Brand Designer", "Design brand assets for an AWS campaign"))}, {"cloud"})
+        self.assertEqual({s["category"] for s in rules.detect(job(
+            "Technical Recruiter", "Hire enterprise architects for architecture teams"))},
+            {"architecture"})
+
+    def test_stripe_review_positive_category_fixtures(self):
+        # Representative synthetic excerpts, not archived verbatim job postings.
+        cases = [
+            ("Software Engineer, Secure Devices", "Platform engineering using AWS and cloud", {"platform_engineering", "cloud"}),
+            ("Staff Backend Engineer - CI Services", "Improve developer experience, DevOps CI/CD and architecture", {"platform_engineering", "devops", "architecture"}),
+            ("Integration Engineer, Professional Services", "Cloud integration, CI/CD, architecture, and LLM", {"cloud", "devops", "architecture", "ai_engineering"}),
+            ("Implementation Consultant, Professional Services", "Cloud architecture and LLM implementation", {"cloud", "architecture", "ai_engineering"}),
+            ("Staff Engineer, Support Experiences", "Architecture for LLM and generative AI", {"architecture", "ai_engineering"}),
+            ("Staff Product Manager, Sail Core", "Developer experience and architecture", {"platform_engineering", "architecture"}),
+            ("Full Stack Engineer, Developer & End User Experience Platform", "Developer experience", {"platform_engineering"}),
+            ("Security Engineer, Bridge", "Secure CI/CD pipelines", {"devops"}),
+            ("Strategy & Transformation Advisor (Enterprise Commerce Architecture)", "Cloud architecture", {"architecture", "cloud"}),
+        ]
+        for title, description, expected in cases:
+            with self.subTest(title=title):
+                self.assertEqual({s["category"] for s in rules.detect(job(title, description))}, expected)
+
+    def test_stripe_review_negative_category_fixtures(self):
+        # Synthetic no-signal descriptions; these do not prove real postings lack signals.
+        titles = [
+            "Account Executive, Product Sales (Data)",
+            "Account Executive, Startups - Grower (Italian Fluency)",
+            "Third Party Risk Analyst",
+            "Deal Pricing Strategist, APAC",
+            "Partner Development Manager- Alliances & Channels",
+        ]
+        for title in titles:
+            with self.subTest(title=title):
+                self.assertEqual(rules.detect(job(title, "Commercial and stakeholder responsibilities")), [])
+
+
 if __name__ == "__main__":
     unittest.main()
