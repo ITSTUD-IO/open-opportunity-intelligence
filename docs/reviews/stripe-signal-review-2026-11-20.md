@@ -83,10 +83,20 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture for both categories; relevance does not establish consulting buying intent.
 
-## Review 9 (pending)
+## Review 9
 - Posting: Full Stack Engineer, Developer & End User Experience Platform
 - URL: https://stripe.com/jobs/search?gh_jid=6567104
 - Board: greenhouse/stripe
 - Detected category: platform_engineering
 - Matched term: `developer experience` (description)
+- Human assessment: **platform_engineering relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture; relevance does not establish consulting buying intent.
+
+## Review 10 (pending)
+- Posting: Security Engineer, Bridge
+- URL: https://stripe.com/jobs/search?gh_jid=7776179
+- Board: greenhouse/stripe
+- Detected category: devops
+- Matched term: `CI/CD` (description)
 - Human assessment: pending
