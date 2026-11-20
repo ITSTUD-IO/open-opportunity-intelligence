@@ -32,6 +32,14 @@ class SignalRulesTests(unittest.TestCase):
     def test_unrelated_raw_metadata_ignored(self):
         self.assertEqual(rules.detect({"**": "ignored", **job("Accountant"), "raw": {"tags": "AWS"}}), [])
 
+    def test_html_description_and_entities(self):
+        signals = rules.detect(job("Engineer", "<p>Build an internal developer platform &amp; GitOps</p>"))
+        self.assertEqual({s["category"] for s in signals}, {"platform_engineering", "devops"})
+
+    def test_html_attributes_and_scripts_are_not_evidence(self):
+        signals = rules.detect(job("Engineer", '<a href="/cloud">General role</a><script>Terraform</script>'))
+        self.assertEqual(signals, [])
+
     def test_group_deduplicates_postings_per_category(self):
         summary = rules.summarize([job("Cloud Engineer", "AWS and Azure"), job("DevOps Engineer", job_id="b")])
         self.assertEqual(len(summary), 1)
