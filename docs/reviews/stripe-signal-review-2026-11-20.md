@@ -93,10 +93,20 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture; relevance does not establish consulting buying intent.
 
-## Review 10 (pending)
+## Review 10
 - Posting: Security Engineer, Bridge
 - URL: https://stripe.com/jobs/search?gh_jid=7776179
 - Board: greenhouse/stripe
 - Detected category: devops
 - Matched term: `CI/CD` (description)
+- Human assessment: **devops relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture; relevance does not establish consulting buying intent.
+
+## Review 11 (pending)
+- Posting: Strategy & Transformation Advisor (Enterprise Commerce Architecture)
+- URL: https://stripe.com/jobs/search?gh_jid=8139711
+- Board: greenhouse/stripe
+- Detected categories: architecture, cloud
+- Matched terms: `Architecture` (title and description), `cloud` (description)
 - Human assessment: pending
