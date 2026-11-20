@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      greenhouse_board:
+        description: 'Verified public Greenhouse board token (leave blank for database-only tests)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -30,6 +35,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://opportunity:test-only-password@localhost:5432/opportunity_test
       PYTHONPATH: .
+      TEST_DATABASE_URL: postgresql://opportunity:test-only-password@localhost:5432/opportunity_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,3 +58,8 @@ jobs:
           PY
       - name: Run repository tests
         run: python -m pytest -q
+      - name: Live Greenhouse persistence and idempotency evidence
+        if: github.event_name == 'workflow_dispatch' && inputs.greenhouse_board != ''
+        env:
+          GREENHOUSE_BOARD: ${{ inputs.greenhouse_board }}
+        run: python tests/greenhouse_live_e2e.py
