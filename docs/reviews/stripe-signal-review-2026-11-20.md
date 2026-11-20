@@ -33,10 +33,20 @@
 - Note: Technical signal relevance does not establish consulting buying intent.
 - Follow-up: Preserve as positive regression fixture for both categories.
 
-## Review 4 (pending)
+## Review 4
 - Posting: Staff Backend Engineer - CI Services
 - URL: https://stripe.com/jobs/search?gh_jid=8089815
 - Board: greenhouse/stripe
 - Detected categories: platform_engineering, devops, architecture
 - Matched terms: `developer experience` (platform_engineering); `DevOps`, `CI/CD` (devops); `architecture` (architecture), all in description
+- Human assessment: **all three signals relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture for all three categories. Relevance does not establish consulting buying intent.
+
+## Review 5 (pending)
+- Posting: Integration Engineer, Professional Services
+- URL: https://stripe.com/jobs/search?gh_jid=8203973
+- Board: greenhouse/stripe
+- Detected categories: cloud, devops, architecture, ai_engineering
+- Matched terms: `cloud`, `CI/CD`, `architecture`, `LLM` (description)
 - Human assessment: pending
