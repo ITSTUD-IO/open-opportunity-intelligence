@@ -11,7 +11,8 @@ from job_boards import collect
 from collect_to_db import validate_snapshot
 from storage import initialize, upsert_snapshot
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages" / "signals"))
-from rules import summarize
+from rules import summarize, detect
+from review import review_sample
 
 board = os.environ["GREENHOUSE_BOARD"]
 if not board or not board.replace("-", "").replace("_", "").isalnum():
@@ -53,9 +54,11 @@ with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
         assert cur.fetchone()[0] == 1
 
 groups = summarize(jobs)
+review_queue = review_sample(jobs, detect, per_category=3, negatives=5)
 signal_counts = groups[0]["categories"] if groups else {}
 postings_with_signals = groups[0]["postings_with_signals"] if groups else 0
 descriptions_present = sum(bool((j.get("raw") or {}).get("content")) for j in jobs)
+print("SIGNAL_REVIEW_SAMPLE " + json.dumps(review_queue, ensure_ascii=False, sort_keys=True))
 print("SIGNAL_EVIDENCE " + json.dumps({
     "board": board, "postings_analyzed": len(jobs),
     "postings_with_descriptions": descriptions_present,
