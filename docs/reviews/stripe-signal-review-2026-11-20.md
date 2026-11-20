@@ -149,9 +149,17 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as a negative regression fixture; absence of a signal is not proof that no technical initiatives exist.
 
-## Review 16 (pending)
+## Review 16
 - Posting: Partner Development Manager- Alliances & Channels
 - URL: https://stripe.com/jobs/search?gh_jid=8267519
 - Board: greenhouse/stripe
 - Detected categories: none (negative sample)
-- Human assessment: pending
+- Human assessment: **correct negative — no relevant technical signal** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as a negative regression fixture; absence of a signal is not proof that no technical initiatives exist.
+
+## Review sample status
+- All 16 unique postings from the 20 sample slots have now been reviewed.
+- The 20 slots comprise 15 positive category slots and 5 negative slots; some positive postings occur in multiple category slots.
+- User labels: 20 relevant category signals, 2 false-positive category signals, and 5 correct-negative postings.
+- These labels are review judgments, not a measured population-wide precision/recall estimate or proof of consulting buying intent.
