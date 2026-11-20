@@ -122,9 +122,18 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as a negative regression fixture; absence of a signal is not proof that no technical initiatives exist.
 
-## Review 13 (pending)
+## Review 13
 - Posting: Account Executive, Startups - Grower (Italian Fluency)
 - URL: https://stripe.com/jobs/search?gh_jid=8319823
+- Board: greenhouse/stripe
+- Detected categories: none (negative sample)
+- Human assessment: **correct negative — no relevant technical signal** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as a negative regression fixture; absence of a signal is not proof that no technical initiatives exist.
+
+## Review 14 (pending)
+- Posting: Third Party Risk Analyst
+- URL: https://stripe.com/jobs/search?gh_jid=8189018
 - Board: greenhouse/stripe
 - Detected categories: none (negative sample)
 - Human assessment: pending
