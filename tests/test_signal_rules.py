@@ -32,6 +32,11 @@ class SignalRulesTests(unittest.TestCase):
     def test_unrelated_raw_metadata_ignored(self):
         self.assertEqual(rules.detect({"**": "ignored", **job("Accountant"), "raw": {"tags": "AWS"}}), [])
 
+    def test_greenhouse_content_field(self):
+        posting = job("Engineer")
+        posting["raw"] = {"content": "<p>We use Kubernetes and Terraform</p>"}
+        self.assertEqual({s["category"] for s in rules.detect(posting)}, {"cloud", "devops"})
+
     def test_html_description_and_entities(self):
         signals = rules.detect(job("Engineer", "<p>Build an internal developer platform &amp; GitOps</p>"))
         self.assertEqual({s["category"] for s in signals}, {"platform_engineering", "devops"})
