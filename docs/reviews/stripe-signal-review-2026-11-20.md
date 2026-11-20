@@ -113,9 +113,18 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture; distinguish Stripe's own demand from client-facing advisory work.
 
-## Review 12 (pending)
+## Review 12
 - Posting: Account Executive, Product Sales (Data)
 - URL: https://stripe.com/jobs/search?gh_jid=8190059
+- Board: greenhouse/stripe
+- Detected categories: none (negative sample)
+- Human assessment: **correct negative — no relevant technical signal** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as a negative regression fixture; absence of a signal is not proof that no technical initiatives exist.
+
+## Review 13 (pending)
+- Posting: Account Executive, Startups - Grower (Italian Fluency)
+- URL: https://stripe.com/jobs/search?gh_jid=8319823
 - Board: greenhouse/stripe
 - Detected categories: none (negative sample)
 - Human assessment: pending
