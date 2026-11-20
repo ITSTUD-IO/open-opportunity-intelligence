@@ -63,10 +63,20 @@
 - Review status: labeled; full posting context not independently verified
 - Follow-up: Preserve as positive regression fixture for all three categories; no inference of consulting buying intent.
 
-## Review 7 (pending)
+## Review 7
 - Posting: Staff Engineer, Support Experiences
 - URL: https://stripe.com/jobs/search?gh_jid=8162185
 - Board: greenhouse/stripe
 - Detected categories: architecture, ai_engineering
 - Matched terms: `architecture`, `LLM`, `generative AI` (description)
+- Human assessment: **both signals relevant** (user-confirmed)
+- Review status: labeled; full posting context not independently verified
+- Follow-up: Preserve as positive regression fixture for both categories; no inference of consulting buying intent.
+
+## Review 8 (pending)
+- Posting: Staff Product Manager, Sail Core
+- URL: https://stripe.com/jobs/search?gh_jid=7913698
+- Board: greenhouse/stripe
+- Detected categories: platform_engineering, architecture
+- Matched terms: `developer experience`, `architecture` (description)
 - Human assessment: pending
