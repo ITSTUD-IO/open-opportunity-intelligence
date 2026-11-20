@@ -45,7 +45,7 @@ def lever(board: str, payload: list[dict]) -> list[dict]:
 def collect(source: str, board: str) -> list[dict]:
     safe_board = urllib.parse.quote(board, safe="")
     if source == "greenhouse":
-        url = f"https://boards-api.greenhouse.io/v1/boards/{safe_board}/jobs"
+        url = f"https://boards-api.greenhouse.io/v1/boards/{safe_board}/jobs?content=true"
         return greenhouse(board, fetch_json(url))
     if source == "lever":
         url = f"https://api.lever.co/v0/postings/{safe_board}?mode=json"
