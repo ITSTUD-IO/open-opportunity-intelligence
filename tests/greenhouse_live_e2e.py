@@ -11,7 +11,8 @@ from job_boards import collect
 from collect_to_db import validate_snapshot
 from storage import initialize, upsert_snapshot
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages" / "signals"))
-from rules import summarize, detect
+from rules import summarize, detect, RULE_VERSION
+from compare_versions import compare
 from review import review_sample
 
 board = os.environ["GREENHOUSE_BOARD"]
@@ -58,13 +59,14 @@ review_queue = review_sample(jobs, detect, per_category=3, negatives=5)
 signal_counts = groups[0]["categories"] if groups else {}
 postings_with_signals = groups[0]["postings_with_signals"] if groups else 0
 descriptions_present = sum(bool((j.get("raw") or {}).get("content")) for j in jobs)
+print("SIGNAL_VERSION_COMPARISON " + json.dumps(compare(jobs), ensure_ascii=False, sort_keys=True))
 print("SIGNAL_REVIEW_SAMPLE " + json.dumps(review_queue, ensure_ascii=False, sort_keys=True))
 print("SIGNAL_EVIDENCE " + json.dumps({
     "board": board, "postings_analyzed": len(jobs),
     "postings_with_descriptions": descriptions_present,
     "postings_with_signals": postings_with_signals,
     "category_posting_counts": signal_counts,
-    "rule_version": "1",
+    "rule_version": RULE_VERSION,
     "caveat": "Keyword signals, not verified consulting demand"
 }, sort_keys=True))
 print(json.dumps({"board": board, "fetched": len(jobs), "stored_first": stored_first,
