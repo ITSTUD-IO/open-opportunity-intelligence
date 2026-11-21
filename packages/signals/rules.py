@@ -25,10 +25,10 @@ COMPILED = {category: tuple(re.compile(r"(?<!\w)" + p + r"(?!\w)", re.I) for p i
 
 # Conservative context guards: weak generic keywords in non-engineering roles
 # are insufficient on their own. Strong category-specific terms still count.
-DESIGN_ROLE = re.compile(r"\\b(?:brand|graphic|visual|creative|product|marketing)\\s+design(?:er)?\\b|\\bdesigner\\b", re.I)
-RECRUITING_ROLE = re.compile(r"\\b(?:recruit(?:er|ing|ment)?|talent acquisition|sourcer)\\b", re.I)
-CLOUD_STRONG = re.compile(r"\\b(?:aws|azure|gcp|kubernetes)\\b|google cloud", re.I)
-ARCHITECTURE_STRONG = re.compile(r"\\b(?:solution|software|enterprise)\\s+architects?\\b", re.I)
+DESIGN_ROLE = re.compile(r"\b(?:brand|graphic|visual|creative|product|marketing)\s+design(?:er)?\b|\bdesigner\b", re.I)
+RECRUITING_ROLE = re.compile(r"\b(?:recruit(?:er|ing|ment)?|talent acquisition|sourcer)\b", re.I)
+CLOUD_STRONG = re.compile(r"\b(?:aws|azure|gcp|kubernetes)\b|google cloud", re.I)
+ARCHITECTURE_STRONG = re.compile(r"\b(?:solution|software|enterprise)\s+architects?\b", re.I)
 
 
 def suppress_weak_match(category: str, title: str, matches: list[dict], fields: dict) -> bool:
