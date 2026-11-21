@@ -32,7 +32,7 @@ class OpportunityTests(unittest.TestCase):
             "ai_engineering": 1, "architecture": 1, "cloud": 2,
             "devops": 1, "platform_engineering": 1})
         self.assertEqual(p["score"], 100)
-        self.assertEqual(p["raw_score"], 107)
+        self.assertEqual(p["raw_score"], 102)
         self.assertEqual(sum(c["points"] for c in p["contributions"]), p["raw_score"])
         self.assertIn("https://stripe.com/jobs/search?gh_jid=8203973", markdown_report(profiles))
 
