@@ -15,10 +15,30 @@
 - Five reviewed correct negatives should remain without signals.
 - Regression tests use **synthetic excerpts**, not archived verbatim posting content.
 
-## Live results
-The PR-triggered integration workflow runs the Stripe snapshot comparison. Retrieve the `SIGNAL_VERSION_COMPARISON` line from its job logs, inspect every `removed_signals` entry and record measured counts here before approving merge.
+## Live results — 2026-11-21
 
-**Status:** live results pending; no claim of zero unintended losses until all removed matches are inspected.
+Source: successful Greenhouse integration workflow run [44934977904](https://github.com/ITSTUD-IO/open-opportunity-intelligence/actions/runs/44934977904), commit `d0d7a560`. Exact same snapshot, 778 postings with descriptions.
+
+| Metric | v1 | v2 | Delta |
+|---|---:|---:|---:|
+| Postings with at least one signal | 236 | 233 | -3 |
+| Architecture | 156 | 154 | -2 |
+| Cloud | 57 | 56 | -1 |
+| AI engineering | 50 | 50 | 0 |
+| DevOps | 17 | 17 | 0 |
+| Platform engineering | 31 | 31 | 0 |
+| Modernization | 0 | 0 | 0 |
+
+No added category signals. Exactly three removed (posting, category) pairs:
+
+1. [Technical Recruiter, OpenRouter (Fixed Term)](https://stripe.com/jobs/search?gh_jid=8404144): `architecture`. **Previously human-confirmed false positive**; expected removal.
+2. [Senior Brand Designer, Link](https://stripe.com/jobs/search?gh_jid=8172672): `cloud`. **Previously human-confirmed false positive**; expected removal.
+3. [GTM Recruiter, OpenRouter (Fixed Term)](https://stripe.com/jobs/search?gh_jid=8404131): `architecture`. **Not yet human-reviewed**; requires checking actual description to rule out unintended signal loss.
+
+All other 775 postings retain the same category-level classification between versions. This is an exact algorithmic comparison, not a manual confirmation of relevance. Two known false positives were eliminated. No unintentional signal loss can be claimed until the third removal is reviewed.
+
+**Status:** CI successful; human review pending for GTM Recruiter; do not merge until reviewed.
+
 
 ## Limitations
 The public job board is mutable. A single snapshot controls version-comparison drift, but results may not generalize across employers. Technical hiring signals do not prove external consulting buying intent.
