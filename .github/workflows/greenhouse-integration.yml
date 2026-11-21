@@ -59,7 +59,7 @@ jobs:
       - name: Run repository tests
         run: python -m pytest -q
       - name: Live Greenhouse persistence and idempotency evidence
-        if: github.event_name == 'workflow_dispatch' && inputs.greenhouse_board != ''
+        if: (github.event_name == 'workflow_dispatch' && inputs.greenhouse_board != '') || github.event_name == 'pull_request'
         env:
-          GREENHOUSE_BOARD: ${{ inputs.greenhouse_board }}
+          GREENHOUSE_BOARD: ${{ github.event_name == 'pull_request' && 'stripe' || inputs.greenhouse_board }}
         run: python tests/greenhouse_live_e2e.py
