@@ -63,3 +63,14 @@ jobs:
         env:
           GREENHOUSE_BOARD: ${{ github.event_name == 'pull_request' && 'stripe' || inputs.greenhouse_board }}
         run: python tests/greenhouse_live_e2e.py
+
+      - name: Upload Stripe opportunity reports
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stripe-opportunity-report
+          path: |
+            out/stripe-opportunities.json
+            out/stripe-opportunities.md
+          if-no-files-found: error
+          retention-days: 14
