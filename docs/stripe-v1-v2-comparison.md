@@ -33,11 +33,11 @@ No added category signals. Exactly three removed (posting, category) pairs:
 
 1. [Technical Recruiter, OpenRouter (Fixed Term)](https://stripe.com/jobs/search?gh_jid=8404144): `architecture`. **Previously human-confirmed false positive**; expected removal.
 2. [Senior Brand Designer, Link](https://stripe.com/jobs/search?gh_jid=8172672): `cloud`. **Previously human-confirmed false positive**; expected removal.
-3. [GTM Recruiter, OpenRouter (Fixed Term)](https://stripe.com/jobs/search?gh_jid=8404131): `architecture`. **Not yet human-reviewed**; requires checking actual description to rule out unintended signal loss.
+3. [GTM Recruiter, OpenRouter (Fixed Term)](https://stripe.com/jobs/search?gh_jid=8404131): `architecture`. **Human-confirmed correct removal (2026-11-21)**; reviewer assessed no relevant technical architecture signal.
 
-All other 775 postings retain the same category-level classification between versions. This is an exact algorithmic comparison, not a manual confirmation of relevance. Two known false positives were eliminated. No unintentional signal loss can be claimed until the third removal is reviewed.
+All other 775 postings retain the same category-level classification between versions. This is an exact algorithmic comparison, not a manual confirmation of relevance. All three removed signals were assessed by the human reviewer as false positives. No unintended category-level losses were observed in this 778-posting snapshot; this is not a guarantee for other boards or future snapshots.
 
-**Status:** CI successful; human review pending for GTM Recruiter; do not merge until reviewed.
+**Status:** All three removals human-reviewed as correct; CI for the tested code passed. Merge-readiness assessment: technically ready for review/merge, subject to required branch checks and any repository approval policy. Documentation-only commit should still receive its normal checks. Do not merge without explicit user authorization.
 
 
 ## Limitations
