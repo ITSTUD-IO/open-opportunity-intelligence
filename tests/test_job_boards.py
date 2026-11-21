@@ -1,5 +1,6 @@
 import importlib.util
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 module_path = Path(__file__).resolve().parents[1] / "packages" / "collectors" / "job_boards.py"
@@ -16,6 +17,15 @@ class JobBoardTests(unittest.TestCase):
         self.assertEqual(first["id"], second["id"])
         self.assertEqual(first["location"], "Berlin")
         self.assertEqual(first["source"], "greenhouse")
+
+    def test_greenhouse_requests_descriptions(self):
+        payload = {"jobs": [{"id": 123, "title": "Engineer", "absolute_url": "https://example.org/123",
+                            "content": "<p>Terraform and AWS</p>"}]}
+        with patch.object(module, "fetch_json", return_value=payload) as fetch:
+            jobs = module.collect("greenhouse", "sample")
+        self.assertEqual(jobs[0]["raw"]["content"], "<p>Terraform and AWS</p>")
+        self.assertEqual(fetch.call_args.args[0],
+                         "https://boards-api.greenhouse.io/v1/boards/sample/jobs?content=true")
 
     def test_lever(self):
         payload = [{"id": "abc", "text": "DevOps Engineer", "hostedUrl": "https://example.org/abc", "categories": {"location": "Remote"}}]
