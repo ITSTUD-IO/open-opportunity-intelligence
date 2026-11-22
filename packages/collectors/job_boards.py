@@ -189,7 +189,10 @@ def epg_bite_jobs(payload: dict, board: str = "ehrhardt-partner-group") -> list[
         title = ad.get("title") or ""
         if not job_id.isalnum() or not title:
             continue
-        api_url = ad.get("url") or {}\n        url = api_url.get("href") if isinstance(api_url, dict) else api_url\n        if not isinstance(url, str) or not url.startswith("https://jobs-ads.epg.com/jobposting/"):\n            continue
+        api_url = ad.get("url") or {}
+        url = api_url.get("href") if isinstance(api_url, dict) else api_url
+        if not isinstance(url, str) or not url.startswith("https://jobs-ads.epg.com/jobposting/"):
+            continue
         raw = dict(ad, content=ad.get("description") or "")
         jobs.append(normalize("epg", board, job_id, title, url,
                               str(ad.get("job_site") or ""), raw))
