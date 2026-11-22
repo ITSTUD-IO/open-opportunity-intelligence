@@ -89,6 +89,9 @@ jobs:
         env:
           REQUIRE_EPG_LIVE: '1'
         run: python -m packages.dach_benchmark --output out/epg-live-validation.json
+      - name: Audit EPG live data quality
+        if: github.event_name == 'pull_request'
+        run: python -m packages.collectors.epg_quality
       - name: Upload EPG validation evidence
         if: always() && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
