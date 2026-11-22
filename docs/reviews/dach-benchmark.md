@@ -36,3 +36,15 @@ Until source discovery and live collection succeed, no cross-company ranking can
 - Added a strict employer-host allowlisted `epg_job_links` extractor to discover `https://jobs-ads.epg.com/jobposting/…` links from employer-owned listing HTML. This is a discovery primitive, **not** a complete EPG collector: pagination, rendering requirements, posting content extraction, job IDs and live end-to-end verification remain open.
 - Unit tests cover the XML structure and external-link rejection. There is currently **no verified Personio SE or EPG score**.
 - Source-validation gate: confirm public employer source, inspect a live response, verify description extraction and vacancy URL, then enable benchmark collection and compare evidence against the original page. Never interpret blocked or absent data as score zero.
+
+## EPG implementation focus (2026-11-22)
+
+Personio SE is **deferred** and excluded from active benchmark targets at the user's request. The reusable generic Personio XML parser remains in the codebase but is not run.
+
+The EPG collector now:
+1. Reads the employer-owned public listing page `https://www.epg-jobs.com/stellenangebote/berufserfahrene`.
+2. Extracts only HTTPS links to `jobs-ads.epg.com/jobposting/<id>`.
+3. Retrieves each posting, extracts visible text and a page title, and normalizes records as `epg:ehrhardt-partner-group`.
+4. Fails explicitly when a listing is JavaScript-rendered or posting content is incomplete. Such a failure is **not** scored as zero.
+
+**Live caveat:** This initial collector assumes static HTML and one listing page. It may need an official API or browser-rendering discovery and pagination. CI result must be inspected before calling EPG connected or assigning any score.
