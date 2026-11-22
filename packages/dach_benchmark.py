@@ -9,9 +9,8 @@ from packages.signals.opportunity import aggregate
 
 TARGETS = [
     {"company": "commercetools", "country": "DE", "source": "greenhouse", "board": "commercetools", "status": "candidate"},
-    {"company": "Personio", "country": "DE", "source": None, "board": None, "status": "discovery_required"},
     {"company": "n8n", "country": "DE", "source": "ashby", "board": "n8n", "status": "verified_public_board"},
-    {"company": "Ehrhardt Partner Group", "country": "DE", "source": None, "board": None, "status": "custom_career_site"},
+    {"company": "Ehrhardt Partner Group", "country": "DE", "source": "epg", "board": "ehrhardt-partner-group", "status": "live_validation_pending"},
 ]
 
 
