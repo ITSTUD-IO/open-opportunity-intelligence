@@ -43,23 +43,32 @@ def test_epg_job_link_extraction_rejects_external_hosts():
     assert epg_job_links(html) == ["https://jobs-ads.epg.com/jobposting/abc"]
 
 
-def test_epg_collector_extracts_employer_postings():
+def test_epg_bite_adapter_normalizes_public_ads():
     from packages.collectors.job_boards import epg
-    url = "https://jobs-ads.epg.com/jobposting/abc123"
-    pages = {
-        "https://www.epg-jobs.com/stellenangebote/berufserfahrene": f'<a href="{url}">Job</a>',
-        url: "<html><head><title>Software Architect | EPG</title></head><body>" +
-             "<main>Cloud architecture and software development. " * 8 + "</main></body></html>",
-    }
-    jobs = epg("ehrhardt-partner-group", fetcher=lambda u: pages[u])
+    key = "a" * 32
+    payload = {"advertisements": [{"hash": "abc123", "title": "Software Architect",
+        "description": "Cloud architecture", "job_site": "Koblenz"}]}
+    calls = []
+    def get_json(url):
+        calls.append(url)
+        return payload
+    jobs = epg("ehrhardt-partner-group",
+               fetcher=lambda url: 'var config={key:"' + key + '"};',
+               json_fetcher=get_json)
     assert len(jobs) == 1
+    assert jobs[0]["source_job_id"] == "abc123"
     assert jobs[0]["title"] == "Software Architect"
-    assert jobs[0]["source"] == "epg"
-    assert "Cloud architecture" in jobs[0]["raw"]["content"]
+    assert jobs[0]["raw"]["content"] == "Cloud architecture"
+    assert jobs[0]["location"] == "Koblenz"
+    assert calls == ["https://jobs.b-ite.com/adsapi/jobads?apikey=" + key]
 
 
-def test_epg_collector_rejects_empty_static_listing():
+def test_epg_bite_rejects_empty_or_malformed_response():
     import pytest
-    from packages.collectors.job_boards import epg
-    with pytest.raises(ValueError, match="no job links"):
-        epg("ehrhardt-partner-group", fetcher=lambda u: "<div id='app'></div>")
+    from packages.collectors.job_boards import epg_bite_jobs, epg_bite_client_key
+    with pytest.raises(ValueError, match="no advertisements"):
+        epg_bite_jobs({})
+    with pytest.raises(ValueError, match="no valid"):
+        epg_bite_jobs({"advertisements": []})
+    with pytest.raises(ValueError, match="key not found"):
+        epg_bite_client_key("no configuration here")
