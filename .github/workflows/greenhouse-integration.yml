@@ -92,6 +92,10 @@ jobs:
       - name: Audit EPG live data quality
         if: always() && github.event_name == 'pull_request'
         run: python -m packages.collectors.epg_quality
+      - name: Probe ten EPG detail pages (non-blocking research)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: python -m packages.collectors.epg_detail_probe
       - name: Upload EPG validation evidence
         if: always() && github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
