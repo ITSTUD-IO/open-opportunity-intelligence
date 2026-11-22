@@ -29,3 +29,10 @@ Until source discovery and live collection succeed, no cross-company ranking can
 - **n8n:** Public Ashby careers board identified. The benchmark now collects `ashby:n8n`; live result and scoring still require successful CI verification.
 - **Personio:** The employer's own careers page is https://www.personio.com/about-personio/careers/ . Do **not** confuse the Personio ATS XML API (for Personio's *customers*) with the employer's own recruiting backend. Its actual board/API identifier remains to be verified.
 - **EPG:** Employer-owned careers at https://www.epg-jobs.com/stellenangebote and individual job descriptions at https://jobs-ads.epg.com/jobposting/… . A reliable index of current vacancy URLs and deduplication is still needed before adding an adapter. Avoid using third-party job board estimates as authoritative employer postings.
+
+## Personio and EPG source adapter progress (2026-11-22)
+
+- Added `personio_xml` parser and collector for the documented **public Personio tenant XML** shape (`<workzag-jobs><position>…`). This is a reusable adapter for companies using Personio Recruiting, **not** evidence that Personio SE's own careers run on that feed. Do not activate the Personio SE benchmark target until its actual tenant and official vacancy URL scheme are verified.
+- Added a strict employer-host allowlisted `epg_job_links` extractor to discover `https://jobs-ads.epg.com/jobposting/…` links from employer-owned listing HTML. This is a discovery primitive, **not** a complete EPG collector: pagination, rendering requirements, posting content extraction, job IDs and live end-to-end verification remain open.
+- Unit tests cover the XML structure and external-link rejection. There is currently **no verified Personio SE or EPG score**.
+- Source-validation gate: confirm public employer source, inspect a live response, verify description extraction and vacancy URL, then enable benchmark collection and compare evidence against the original page. Never interpret blocked or absent data as score zero.
