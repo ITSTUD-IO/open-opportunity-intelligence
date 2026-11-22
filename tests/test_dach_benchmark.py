@@ -41,3 +41,25 @@ def test_epg_job_link_extraction_rejects_external_hosts():
     <a href="https://evil.example/jobposting/abc">B</a>
     <a href="https://jobs-ads.epg.com.evil.example/jobposting/abc">C</a>"""
     assert epg_job_links(html) == ["https://jobs-ads.epg.com/jobposting/abc"]
+
+
+def test_epg_collector_extracts_employer_postings():
+    from packages.collectors.job_boards import epg
+    url = "https://jobs-ads.epg.com/jobposting/abc123"
+    pages = {
+        "https://www.epg-jobs.com/stellenangebote/berufserfahrene": f'<a href="{url}">Job</a>',
+        url: "<html><head><title>Software Architect | EPG</title></head><body>" +
+             "<main>Cloud architecture and software development. " * 8 + "</main></body></html>",
+    }
+    jobs = epg("ehrhardt-partner-group", fetcher=lambda u: pages[u])
+    assert len(jobs) == 1
+    assert jobs[0]["title"] == "Software Architect"
+    assert jobs[0]["source"] == "epg"
+    assert "Cloud architecture" in jobs[0]["raw"]["content"]
+
+
+def test_epg_collector_rejects_empty_static_listing():
+    import pytest
+    from packages.collectors.job_boards import epg
+    with pytest.raises(ValueError, match="no job links"):
+        epg("ehrhardt-partner-group", fetcher=lambda u: "<div id='app'></div>")
