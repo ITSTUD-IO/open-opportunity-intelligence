@@ -78,6 +78,9 @@ jobs:
       - name: DACH public board benchmark (non-blocking source discovery)
         if: github.event_name == 'pull_request'
         run: python -m packages.dach_benchmark --output out/dach-benchmark.json
+      - name: Discover EPG public job feed mechanism
+        if: github.event_name == 'pull_request'
+        run: python -m packages.collectors.epg_discovery
       - name: Validate EPG live source strictly
         if: github.event_name == 'pull_request'
         env:
