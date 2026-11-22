@@ -81,6 +81,9 @@ jobs:
       - name: Discover EPG public job feed mechanism
         if: github.event_name == 'pull_request'
         run: python -m packages.collectors.epg_discovery
+      - name: Inspect BITE public JavaScript assets
+        if: github.event_name == 'pull_request'
+        run: python -m packages.collectors.epg_bite_discovery
       - name: Validate EPG live source strictly
         if: github.event_name == 'pull_request'
         env:
