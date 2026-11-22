@@ -47,7 +47,8 @@ def test_epg_bite_adapter_normalizes_public_ads():
     from packages.collectors.job_boards import epg
     key = "a" * 32
     payload = {"advertisements": [{"hash": "abc123", "title": "Software Architect",
-        "description": "Cloud architecture", "job_site": "Koblenz",\n        "url": {"href": "https://jobs-ads.epg.com/jobposting/abc123"}}]}
+        "description": "Cloud architecture", "job_site": "Koblenz",
+        "url": {"href": "https://jobs-ads.epg.com/jobposting/abc123"}}]}
     calls = []
     def get_json(url):
         calls.append(url)
