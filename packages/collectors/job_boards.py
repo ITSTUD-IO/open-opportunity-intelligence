@@ -163,15 +163,58 @@ def epg_job_page(url: str, html: str) -> dict:
                      {"content": description})
 
 
-def epg(board: str, *, fetcher=fetch_text) -> list[dict]:
-    """Collect employer-linked postings, fail closed if listing is JS-rendered."""
+EPG_BITE_API = "https://jobs.b-ite.com/adsapi/jobads"
+EPG_BITE_CONFIG = "https://cs-assets.b-ite.com/epg/jobs-api/v2/epg.min.js"
+EPG_LISTING_PAGE = "https://www.epg-jobs.com/stellenangebote/berufserfahrene"
+
+
+def epg_bite_client_key(config_js: str) -> str:
+    """Read the public listing key from the employer's published JS configuration."""
+    import re
+    match = re.search(r'\\bkey\\s*:\\s*["\\']([a-f0-9]{32})["\\']', config_js)
+    if not match:
+        raise ValueError("EPG BITE public client key not found in published configuration")
+    return match.group(1)
+
+
+def epg_bite_jobs(payload: dict, board: str = "ehrhardt-partner-group") -> list[dict]:
+    """Normalize BITE ads; reject malformed or empty API responses."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("advertisements"), list):
+        raise ValueError("EPG BITE response has no advertisements list")
+    jobs = []
+    for ad in payload["advertisements"]:
+        if not isinstance(ad, dict):
+            continue
+        job_id = str(ad.get("hash") or "")
+        title = ad.get("title") or ""
+        if not job_id.isalnum() or not title:
+            continue
+        url = f"https://jobs-ads.epg.com/de/jobposting/{job_id}"
+        raw = dict(ad, content=ad.get("description") or "")
+        jobs.append(normalize("epg", board, job_id, title, url,
+                              str(ad.get("job_site") or ""), raw))
+    if not jobs:
+        raise ValueError("EPG BITE returned no valid job advertisements")
+    return jobs
+
+
+def epg(board: str, *, fetcher=fetch_text, json_fetcher=None) -> list[dict]:
+    """Collect public EPG listings from the BITE job ads API."""
     if board != "ehrhardt-partner-group":
         raise ValueError("Unknown EPG board")
-    index = fetcher("https://www.epg-jobs.com/stellenangebote/berufserfahrene")
-    links = epg_job_links(index)
-    if not links:
-        raise ValueError("EPG listing contains no job links in static HTML; browser/API discovery required")
-    return [epg_job_page(url, fetcher(url)) for url in links]
+    key = epg_bite_client_key(fetcher(EPG_BITE_CONFIG))
+    params = urllib.parse.urlencode({"apikey": key})
+    url = f"{EPG_BITE_API}?{params}"
+    if json_fetcher is None:
+        def json_fetcher(request_url):
+            req = urllib.request.Request(request_url, headers={
+                "User-Agent": "OpenOpportunityIntelligence/0.1 (research prototype)",
+                "Accept": "application/json",
+                "X-BITE-Origin": EPG_LISTING_PAGE,
+            })
+            with urllib.request.urlopen(req, timeout=15) as response:
+                return json.load(response)
+    return epg_bite_jobs(json_fetcher(url), board)
 
 
 def collect(source: str, board: str) -> list[dict]:
