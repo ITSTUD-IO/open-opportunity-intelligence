@@ -7,6 +7,8 @@ import json
 import time
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -60,6 +62,57 @@ def ashby(board: str, payload: dict) -> list[dict]:
     return jobs
 
 
+
+def personio_xml(board: str, xml_text: str) -> list[dict]:
+    """Normalize a public Personio tenant XML feed (not necessarily Personio SE)."""
+    root = ET.fromstring(xml_text)
+    if root.tag != "workzag-jobs":
+        raise ValueError("Unexpected Personio XML root")
+    jobs = []
+    for position in root.findall("position"):
+        job_id = (position.findtext("id") or "").strip()
+        title = (position.findtext("name") or "").strip()
+        if not job_id or not title:
+            continue
+        sections = []
+        for section in position.findall(".//jobDescriptions/*"):
+            sections.extend((node.text or "") for node in section.iter() if node.text)
+        description = " ".join(sections)
+        raw = {"content": description, "department": position.findtext("department") or "",
+               "createdAt": position.findtext("createdAt") or ""}
+        url = f"https://{board}.jobs.personio.de/job/{urllib.parse.quote(job_id, safe='')}"
+        jobs.append(normalize("personio_xml", board, job_id, title, url,
+                              position.findtext("office") or "", raw))
+    return jobs
+
+
+class _EPGJobLinks(HTMLParser):
+    """Extract only employer-hosted jobposting URLs from an employer index."""
+    def __init__(self):
+        super().__init__()
+        self.urls = set()
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "a":
+            return
+        href = dict(attrs).get("href", "")
+        parsed = urllib.parse.urlparse(urllib.parse.urljoin("https://www.epg-jobs.com/", href))
+        if parsed.scheme == "https" and parsed.netloc == "jobs-ads.epg.com" and parsed.path.startswith("/jobposting/"):
+            self.urls.add(urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", "")))
+
+
+def epg_job_links(index_html: str) -> list[str]:
+    parser = _EPGJobLinks()
+    parser.feed(index_html)
+    return sorted(parser.urls)
+
+
+def fetch_text(url: str, *, timeout: int = 15) -> str:
+    req = urllib.request.Request(url, headers={"User-Agent": "OpenOpportunityIntelligence/0.1 (research prototype)"})
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        return response.read().decode("utf-8")
+
+
 def collect(source: str, board: str) -> list[dict]:
     safe_board = urllib.parse.quote(board, safe="")
     if source == "greenhouse":
@@ -71,12 +124,14 @@ def collect(source: str, board: str) -> list[dict]:
     if source == "ashby":
         url = f"https://api.ashbyhq.com/posting-api/job-board/{safe_board}"
         return ashby(board, fetch_json(url))
+    if source == "personio_xml":
+        return personio_xml(board, fetch_text(f"https://{safe_board}.jobs.personio.de/xml?language=en"))
     raise ValueError(f"Unsupported source: {source}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch public job postings for explicitly configured boards")
-    parser.add_argument("--source", choices=("greenhouse", "lever", "ashby"), required=True)
+    parser.add_argument("--source", choices=("greenhouse", "lever", "ashby", "personio_xml"), required=True)
     parser.add_argument("--board", required=True, help="Company's public board identifier")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
