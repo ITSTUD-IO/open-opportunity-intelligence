@@ -78,6 +78,19 @@ jobs:
       - name: DACH public board benchmark (non-blocking source discovery)
         if: github.event_name == 'pull_request'
         run: python -m packages.dach_benchmark --output out/dach-benchmark.json
+      - name: Validate EPG live source strictly
+        if: github.event_name == 'pull_request'
+        env:
+          REQUIRE_EPG_LIVE: '1'
+        run: python -m packages.dach_benchmark --output out/epg-live-validation.json
+      - name: Upload EPG validation evidence
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: epg-live-validation
+          path: out/epg-live-validation.json
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload DACH benchmark
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
