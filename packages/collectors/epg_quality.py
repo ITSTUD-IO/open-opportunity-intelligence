@@ -26,7 +26,8 @@ def audit(jobs):
                                 "categories": [s["category"] for s in signals],
                                 "description_length": len(str(j["raw"].get("content") or ""))})
             categories.update(s["category"] for s in signals)
-    return {"postings": len(jobs), "unique_source_ids": len(set(ids)),
+    description_types = Counter(type(j["raw"].get("description")).__name__ for j in jobs)
+    return {"description_value_types": dict(description_types), "postings": len(jobs), "unique_source_ids": len(set(ids)),
             "missing_descriptions": len(missing_description),
             "missing_locations": len(missing_location),
             "api_url_mismatches": len(mismatches),
