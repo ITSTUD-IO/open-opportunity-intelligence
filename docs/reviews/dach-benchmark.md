@@ -48,3 +48,14 @@ The EPG collector now:
 4. Fails explicitly when a listing is JavaScript-rendered or posting content is incomplete. Such a failure is **not** scored as zero.
 
 **Live caveat:** This initial collector assumes static HTML and one listing page. It may need an official API or browser-rendering discovery and pagination. CI result must be inspected before calling EPG connected or assigning any score.
+
+## Verified EPG source discovery — GitHub Actions run 45026855858
+
+The live HTML response from `https://www.epg-jobs.com/stellenangebote/berufserfahrene` identifies the recruiting provider **BITE**:
+- `https://static.b-ite.com/jobs-api/004/api-v4.js`
+- `https://cs-assets.b-ite.com/epg/jobs-api/v2/epg.min.js`
+- `https://static.b-ite.com/jobs-api/loader-v1/api-loader-v1.min.js`
+- Listing configuration: `data-bite-jobs-api-listing="epg:direkteinstieg-listing-de"`
+- An employer-hosted application URL occurs in the initial HTML: `https://jobs-ads.epg.com/de/jobposting/69a6ecc20c71848aa118e77ebc730957bf34fbb81/apply`.
+
+**Conclusion:** The initial static-link collector does not match the provider's dynamic listing. Inspect the public BITE JavaScript/configuration to identify its documented/read-only list endpoint and response schema, then implement a targeted adapter. No verified listing API URL, pagination contract or successful EPG score yet. Source: integration run https://github.com/ITSTUD-IO/open-opportunity-intelligence/actions/runs/45026855858 .
