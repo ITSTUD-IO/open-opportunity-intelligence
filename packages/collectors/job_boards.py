@@ -113,6 +113,67 @@ def fetch_text(url: str, *, timeout: int = 15) -> str:
         return response.read().decode("utf-8")
 
 
+
+class _EPGJobPage(HTMLParser):
+    """Read page title and visible job text without external HTML dependencies."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.title_parts = []
+        self.parts = []
+        self.in_title = False
+        self.hidden = 0
+        self.meta_title = ""
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == "title":
+            self.in_title = True
+        if tag in ("script", "style", "noscript"):
+            self.hidden += 1
+        if tag == "meta" and attrs.get("property") == "og:title":
+            self.meta_title = attrs.get("content", "")
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.in_title = False
+        if tag in ("script", "style", "noscript"):
+            self.hidden = max(0, self.hidden - 1)
+
+    def handle_data(self, data):
+        if self.in_title:
+            self.title_parts.append(data)
+        if not self.hidden:
+            self.parts.append(data)
+
+
+def epg_job_page(url: str, html: str) -> dict:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme != "https" or parsed.netloc != "jobs-ads.epg.com" or not parsed.path.startswith("/jobposting/"):
+        raise ValueError("Not an EPG employer-hosted job URL")
+    job_id = parsed.path.removeprefix("/jobposting/").strip("/")
+    if not job_id or "/" in job_id or not job_id.isalnum():
+        raise ValueError("Invalid EPG job identifier")
+    page = _EPGJobPage()
+    page.feed(html)
+    title = (page.meta_title or " ".join(page.title_parts)).split("|")[0].strip()
+    description = " ".join(" ".join(page.parts).split())
+    if not title or len(description) < 100:
+        raise ValueError("Incomplete EPG job page; refusing misleading score")
+    return normalize("epg", "ehrhardt-partner-group", job_id, title, url, "",
+                     {"content": description})
+
+
+def epg(board: str, *, fetcher=fetch_text) -> list[dict]:
+    """Collect employer-linked postings, fail closed if listing is JS-rendered."""
+    if board != "ehrhardt-partner-group":
+        raise ValueError("Unknown EPG board")
+    index = fetcher("https://www.epg-jobs.com/stellenangebote/berufserfahrene")
+    links = epg_job_links(index)
+    if not links:
+        raise ValueError("EPG listing contains no job links in static HTML; browser/API discovery required")
+    return [epg_job_page(url, fetcher(url)) for url in links]
+
+
 def collect(source: str, board: str) -> list[dict]:
     safe_board = urllib.parse.quote(board, safe="")
     if source == "greenhouse":
@@ -124,6 +185,8 @@ def collect(source: str, board: str) -> list[dict]:
     if source == "ashby":
         url = f"https://api.ashbyhq.com/posting-api/job-board/{safe_board}"
         return ashby(board, fetch_json(url))
+    if source == "epg":
+        return epg(board)
     if source == "personio_xml":
         return personio_xml(board, fetch_text(f"https://{safe_board}.jobs.personio.de/xml?language=en"))
     raise ValueError(f"Unsupported source: {source}")
@@ -131,7 +194,7 @@ def collect(source: str, board: str) -> list[dict]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch public job postings for explicitly configured boards")
-    parser.add_argument("--source", choices=("greenhouse", "lever", "ashby", "personio_xml"), required=True)
+    parser.add_argument("--source", choices=("greenhouse", "lever", "ashby", "personio_xml", "epg"), required=True)
     parser.add_argument("--board", required=True, help="Company's public board identifier")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
