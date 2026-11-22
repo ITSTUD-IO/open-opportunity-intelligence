@@ -171,7 +171,7 @@ EPG_LISTING_PAGE = "https://www.epg-jobs.com/stellenangebote/berufserfahrene"
 def epg_bite_client_key(config_js: str) -> str:
     """Read the public listing key from the employer's published JS configuration."""
     import re
-    match = re.search(r'key\s*:\s*"([a-f0-9]{32})"', config_js)
+    match = re.search(r'key\s*:\s*"([a-f0-9]{32,64})"', config_js)
     if not match:
         raise ValueError("EPG BITE public client key not found in published configuration")
     return match.group(1)
