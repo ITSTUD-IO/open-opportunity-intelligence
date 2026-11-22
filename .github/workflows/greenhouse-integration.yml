@@ -74,3 +74,15 @@ jobs:
             out/stripe-opportunities.md
           if-no-files-found: error
           retention-days: 14
+
+      - name: DACH public board benchmark (non-blocking source discovery)
+        if: github.event_name == 'pull_request'
+        run: python -m packages.dach_benchmark --output out/dach-benchmark.json
+      - name: Upload DACH benchmark
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dach-benchmark
+          path: out/dach-benchmark.json
+          if-no-files-found: error
+          retention-days: 14
