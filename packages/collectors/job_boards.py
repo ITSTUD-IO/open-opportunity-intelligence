@@ -42,6 +42,24 @@ def lever(board: str, payload: list[dict]) -> list[dict]:
     return jobs
 
 
+def ashby(board: str, payload: dict) -> list[dict]:
+    """Normalize public Ashby job board postings; reject incomplete entries."""
+    jobs = []
+    for job in payload.get("jobs", []):
+        job_id = job.get("id") or job.get("jobId")
+        url = job.get("jobUrl") or job.get("applyUrl")
+        if not job_id or not url:
+            continue
+        description = job.get("descriptionHtml") or job.get("descriptionPlain") or ""
+        raw = dict(job, content=description)
+        location = job.get("location") or ""
+        if isinstance(location, dict):
+            location = location.get("name", "")
+        jobs.append(normalize("ashby", board, str(job_id), job.get("title", ""),
+                              url, str(location), raw))
+    return jobs
+
+
 def collect(source: str, board: str) -> list[dict]:
     safe_board = urllib.parse.quote(board, safe="")
     if source == "greenhouse":
@@ -50,12 +68,15 @@ def collect(source: str, board: str) -> list[dict]:
     if source == "lever":
         url = f"https://api.lever.co/v0/postings/{safe_board}?mode=json"
         return lever(board, fetch_json(url))
+    if source == "ashby":
+        url = f"https://api.ashbyhq.com/posting-api/job-board/{safe_board}"
+        return ashby(board, fetch_json(url))
     raise ValueError(f"Unsupported source: {source}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch public job postings for explicitly configured boards")
-    parser.add_argument("--source", choices=("greenhouse", "lever"), required=True)
+    parser.add_argument("--source", choices=("greenhouse", "lever", "ashby"), required=True)
     parser.add_argument("--board", required=True, help="Company's public board identifier")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
