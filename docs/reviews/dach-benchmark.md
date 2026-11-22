@@ -59,3 +59,17 @@ The live HTML response from `https://www.epg-jobs.com/stellenangebote/berufserfa
 - An employer-hosted application URL occurs in the initial HTML: `https://jobs-ads.epg.com/de/jobposting/69a6ecc20c71848aa118e77ebc730957bf34fbb81/apply`.
 
 **Conclusion:** The initial static-link collector does not match the provider's dynamic listing. Inspect the public BITE JavaScript/configuration to identify its documented/read-only list endpoint and response schema, then implement a targeted adapter. No verified listing API URL, pagination contract or successful EPG score yet. Source: integration run https://github.com/ITSTUD-IO/open-opportunity-intelligence/actions/runs/45026855858 .
+
+## Decision checkpoint: EPG data quality and DACH-first fallback (2026-11-22)
+
+The EPG BITE list endpoint is live, but is **not a sufficiently complete source for scoring**. CI evidence: 98 unique advertisements initially; 88 lacked descriptions. After switching to API-provided canonical URLs, 79 passed the current URL policy, but only 3/79 had descriptions. The 19 excluded entries require URL-shape inspection, not an assumption that they are invalid jobs. The former EPG score of 39/100 must not be used as a reliable benchmark. The benchmark now withholds it.
+
+**Next EPG experiment (one bounded investigation, no speculative patches):**
+1. Inspect one real BITE advertisement's raw field names/types and its employer-hosted job detail page, redacting any public API key and personal data.
+2. Identify the *actual* full-description field or public detail endpoint. Compare 10 representative ads (technical/nontechnical, with/without description, differing URL shapes) against their canonical pages.
+3. Accept EPG scoring only if >=80% of collected ads have substantive descriptions and sample URLs/roles match the originals. Otherwise mark EPG as metadata-only and stop work on the custom collector for now.
+4. Treat missing descriptions as a **source quality status**, not a software exception that blocks unrelated sources.
+
+**Fallback architecture: DACH job boards as primary discovery, employer pages as enrichment/validation.** Prioritize publicly accessible, permitted feeds/APIs of job-board providers with DACH coverage. Evaluate candidates by permitted access/terms, full-text coverage, stable identifiers and canonical URLs, DACH geographic filters, pagination, rate limits, freshness, and reproducibility. Do not assume scraping is permitted. Preserve provenance and separate job-board metadata from employer-confirmed facts. Deduplicate across boards by canonical employer URL, normalized title, company and location; keep uncertainty explicit. Never interpret hiring signals as proven consulting purchasing intent.
+
+**Go/no-go:** If the bounded EPG investigation cannot produce representative full descriptions and correct canonical URLs, switch implementation effort to DACH job-board discovery, retain EPG as a validation/enrichment source, and keep PR #6 unmerged until reviewed.
