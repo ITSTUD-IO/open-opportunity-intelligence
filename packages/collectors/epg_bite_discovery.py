@@ -32,7 +32,7 @@ def inspect_asset(url, fetcher=fetch_text):
             if snippet not in matches:
                 matches.append(snippet[:310])
             offset = pos + len(keyword)
-        return {"asset": url, "bytes": len(script.encode("utf-8")), "snippets": matches}
+    return {"asset": url, "bytes": len(script.encode("utf-8")), "snippets": matches, "prefix": script[:180]}
 
 
 def main():
