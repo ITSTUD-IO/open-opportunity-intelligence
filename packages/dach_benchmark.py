@@ -1,6 +1,7 @@
 """DACH comparison harness: explicit boards only, never silently treat missing data as zero."""
 import argparse
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -41,6 +42,9 @@ def main():
     result = benchmark()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print("DACH_BENCHMARK_EVIDENCE " + json.dumps(result, ensure_ascii=False, default=str)[:16000])
+    if os.getenv("REQUIRE_EPG_LIVE") == "1" and any(r["company"] == "Ehrhardt Partner Group" and r["result"] != "ok" for r in result["results"]):
+        raise SystemExit("EPG live validation failed; see DACH_BENCHMARK_EVIDENCE")
     print(json.dumps([{"company": r["company"], "result": r["result"],
                        "postings": r.get("postings"), "score": (r.get("profile") or {}).get("score")}
                       for r in result["results"]], ensure_ascii=False))
