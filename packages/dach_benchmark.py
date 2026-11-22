@@ -25,6 +25,10 @@ def benchmark(targets=TARGETS, collector=collect):
             continue
         try:
             jobs = collector(target["source"], target["board"])
+            if target["source"] == "epg":
+                described = sum(bool(str(j.get("raw", {}).get("content") or "").strip()) for j in jobs)
+                if not jobs or described / len(jobs) < 0.8:
+                    raise ValueError(f"EPG description coverage insufficient: {described}/{len(jobs)}; score withheld")
             profiles = aggregate(jobs)
             row.update({"result": "ok", "postings": len(jobs),
                         "profile": profiles[0] if profiles else None,
