@@ -12,7 +12,7 @@ ASSETS = (
     "https://cs-assets.b-ite.com/epg/jobs-api/v2/epg.min.js",
     "https://static.b-ite.com/jobs-api/loader-v1/api-loader-v1.min.js",
 )
-PATTERN = re.compile(r".{0,130}(?:postings/search|jobposting|api/v1|listing|fetch\\(|XMLHttpRequest|axios|https?://).{0,180}", re.I)
+KEYWORDS = ("postings/search", "jobposting", "api/v1", "listing", "fetch(", "XMLHttpRequest", "axios", "https://")
 
 
 def inspect_asset(url, fetcher=fetch_text):
@@ -21,13 +21,18 @@ def inspect_asset(url, fetcher=fetch_text):
         raise ValueError("Unexpected asset host")
     script = fetcher(url)
     matches = []
-    for m in PATTERN.finditer(script):
-        snippet = re.sub(r"\\s+", " ", m.group(0))
-        if snippet not in matches:
-            matches.append(snippet[:310])
-        if len(matches) >= 45:
-            break
-    return {"asset": url, "bytes": len(script.encode("utf-8")), "snippets": matches}
+    lower = script.lower()
+    for keyword in KEYWORDS:
+        offset = 0
+        while len(matches) < 45:
+            pos = lower.find(keyword.lower(), offset)
+            if pos < 0:
+                break
+            snippet = " ".join(script[max(0, pos - 130):pos + 180].split())
+            if snippet not in matches:
+                matches.append(snippet[:310])
+            offset = pos + len(keyword)
+        return {"asset": url, "bytes": len(script.encode("utf-8")), "snippets": matches}
 
 
 def main():
