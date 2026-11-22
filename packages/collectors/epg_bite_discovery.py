@@ -12,7 +12,7 @@ ASSETS = (
     "https://cs-assets.b-ite.com/epg/jobs-api/v2/epg.min.js",
     "https://static.b-ite.com/jobs-api/loader-v1/api-loader-v1.min.js",
 )
-KEYWORDS = ("postings/search", "jobposting", "api/v1", "listing", "fetch(", "XMLHttpRequest", "axios", "https://")
+KEYWORDS = ("advertisements", "endpoint", "apiUrl", "api_url", "serverUrl", "url:", "key:", "baseUrl", "request", "get(", "post(", "jobs-api/v5/", "direkteinstieg", "api.b-ite", "jobposting")
 
 
 def inspect_asset(url, fetcher=fetch_text):
@@ -32,7 +32,7 @@ def inspect_asset(url, fetcher=fetch_text):
             if snippet not in matches:
                 matches.append(snippet[:310])
             offset = pos + len(keyword)
-    return {"asset": url, "bytes": len(script.encode("utf-8")), "snippets": matches, "prefix": script[:180]}
+    return {"asset": url, "bytes": len(script.encode("utf-8")), "snippets": matches, "prefix": script[:180] if "epg.min.js" not in url else "[redacted: config includes public client key]"}
 
 
 def main():
@@ -41,6 +41,8 @@ def main():
             result = inspect_asset(url)
         except Exception as exc:
             result = {"asset": url, "error": f"{type(exc).__name__}: {exc}"}
+        if "epg.min.js" in url and "snippets" in result:
+            result["snippets"] = [item.replace("d9d1757332ad4e5cd2f612995ae88ca395612ce4", "[public-client-key]") for item in result["snippets"]]
         print("EPG_BITE_ASSET " + json.dumps(result, ensure_ascii=False)[:16000])
 
 
