@@ -104,6 +104,10 @@ jobs:
           path: out/epg-live-validation.json
           if-no-files-found: ignore
           retention-days: 14
+      - name: Arbeitnow bounded live feed quality probe
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: python -m packages.collectors.arbeitnow_quality --limit 30
       - name: Upload DACH benchmark
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
