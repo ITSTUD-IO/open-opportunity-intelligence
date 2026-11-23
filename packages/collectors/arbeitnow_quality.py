@@ -75,7 +75,9 @@ def audit(payload, limit=30):
     n = len(rows)
     def coverage(key):
         return round(sum(bool(row[key]) for row in rows) / n, 3)
+    from packages.collectors.arbeitnow_enrichment import audit_enrichment
     return {
+        "enrichment": audit_enrichment(entries),
         "source": "arbeitnow", "sample_size": n, "sample_limit": limit,
         "sample_scope": "first page only; not representative of DACH market",
         "quality": {"description_200_chars": coverage("description_present"),
