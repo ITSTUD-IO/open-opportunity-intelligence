@@ -41,3 +41,11 @@ Obtain developer credentials and written clarification/licence for the intended 
 ## Scope
 
 No change to scoring weights or existing employer collectors in this decision. PR #6 stays open and unmerged.
+
+## Adzuna evaluation implementation (2026-11-23)
+
+`packages/collectors/adzuna_quality.py` provides a **bounded, read-only** market-specific adapter for DE, AT and CH. It does not run in CI against the live API because credentials and explicit approval are required. Its fixture-based tests run in the repository test suite.
+
+To run a permitted evaluation locally, first register an Adzuna developer application and confirm the intended use is covered by the terms or written agreement. Set `ADZUNA_EVALUATION_APPROVED=1`, `ADZUNA_APP_ID` and `ADZUNA_APP_KEY` as environment variables (never commit them). Then run `python -m packages.collectors.adzuna_quality --market de --limit 20`; repeat for `at` and `ch`. The script does not print credentials, store job records or crawl pages. It reports aggregate field coverage, stable identifiers, description lengths and technical signal counts. API market is **not** treated as proof of an individual job's country.
+
+**Current status:** Implementation and offline fixtures only; no real Adzuna response, licensing approval, or DACH coverage measurements yet. Full-text coverage is a critical go/no-go criterion because search APIs often return snippets.
