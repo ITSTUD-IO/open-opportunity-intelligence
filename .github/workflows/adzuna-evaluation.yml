@@ -1,0 +1,43 @@
+name: Adzuna bounded evaluation
+on:
+  workflow_dispatch:
+    inputs:
+      market:
+        description: 'One market per run'
+        required: true
+        type: choice
+        options: [de, at, ch]
+      limit:
+        description: 'Results per market (max 20)'
+        required: true
+        default: '20'
+        type: choice
+        options: ['10', '20']
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: adzuna-evaluation
+    env:
+      ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+      ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+      ADZUNA_EVALUATION_APPROVED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require configured secrets
+        shell: bash
+        run: |
+          test -n "$ADZUNA_APP_ID" && test -n "$ADZUNA_APP_KEY" || {
+            echo 'Missing Adzuna secrets; no API request made'
+            exit 1
+          }
+      - name: Evaluate one DACH market (one API request)
+        env:
+          MARKET: ${{ inputs.market }}
+          LIMIT: ${{ inputs.limit }}
+        run: python -m packages.collectors.adzuna_quality --market "$MARKET" --limit "$LIMIT"
