@@ -49,3 +49,11 @@ No change to scoring weights or existing employer collectors in this decision. P
 To run a permitted evaluation locally, first register an Adzuna developer application and confirm the intended use is covered by the terms or written agreement. Set `ADZUNA_EVALUATION_APPROVED=1`, `ADZUNA_APP_ID` and `ADZUNA_APP_KEY` as environment variables (never commit them). Then run `python -m packages.collectors.adzuna_quality --market de --limit 20`; repeat for `at` and `ch`. The script does not print credentials, store job records or crawl pages. It reports aggregate field coverage, stable identifiers, description lengths and technical signal counts. API market is **not** treated as proof of an individual job's country.
 
 **Current status:** Implementation and offline fixtures only; no real Adzuna response, licensing approval, or DACH coverage measurements yet. Full-text coverage is a critical go/no-go criterion because search APIs often return snippets.
+
+## Live Adzuna checkpoint — 2026-11-24
+
+Run: https://github.com/ITSTUD-IO/open-opportunity-intelligence/actions/runs/45486609676
+
+Three successful requests for software engineer, 20 results per market. Reported totals DE 3659, AT 191, CH 715. All 60 samples had employer, location, HTTPS URL and unique IDs within each market. Signal hits DE 0/20, AT 3/20, CH 5/20. Every extracted description was exactly 500 characters (min=max in all markets), strongly suggesting truncation. Market is not independently verified posting country; reported totals are not deduplicated or market-wide estimates. HTTPS redirect URLs are not verified canonical employer URLs.
+
+Decision: discovery candidate only; no-go for standalone full-text opportunity scoring pending richer licensed data or permitted employer enrichment. Existing technical gate does not establish completeness. Commercial permission remains unverified. Three successful calls observed; nominal remaining trial budget 22 if no other usage. No further calls made in this checkpoint.
