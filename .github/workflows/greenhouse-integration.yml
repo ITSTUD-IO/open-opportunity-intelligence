@@ -63,3 +63,56 @@ jobs:
         env:
           GREENHOUSE_BOARD: ${{ github.event_name == 'pull_request' && 'stripe' || inputs.greenhouse_board }}
         run: python tests/greenhouse_live_e2e.py
+
+      - name: Upload Stripe opportunity reports
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stripe-opportunity-report
+          path: |
+            out/stripe-opportunities.json
+            out/stripe-opportunities.md
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: DACH public board benchmark (non-blocking source discovery)
+        if: github.event_name == 'pull_request'
+        run: python -m packages.dach_benchmark --output out/dach-benchmark.json
+      - name: Discover EPG public job feed mechanism
+        if: github.event_name == 'pull_request'
+        run: python -m packages.collectors.epg_discovery
+      - name: Inspect BITE public JavaScript assets
+        if: github.event_name == 'pull_request'
+        run: python -m packages.collectors.epg_bite_discovery
+      - name: Validate EPG live source strictly
+        if: github.event_name == 'pull_request'
+        env:
+          REQUIRE_EPG_LIVE: '0'
+        run: python -m packages.dach_benchmark --output out/epg-live-validation.json
+      - name: Audit EPG live data quality
+        if: always() && github.event_name == 'pull_request'
+        run: python -m packages.collectors.epg_quality
+      - name: Probe ten EPG detail pages (non-blocking research)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: python -m packages.collectors.epg_detail_probe
+      - name: Upload EPG validation evidence
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: epg-live-validation
+          path: out/epg-live-validation.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Arbeitnow bounded live feed quality probe
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: python -m packages.collectors.arbeitnow_quality --limit 30
+      - name: Upload DACH benchmark
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dach-benchmark
+          path: out/dach-benchmark.json
+          if-no-files-found: error
+          retention-days: 14

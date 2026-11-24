@@ -1,0 +1,46 @@
+name: Adzuna bounded evaluation
+on:
+  push:
+    branches: [feat/opportunity-intelligence-mvp]
+    paths: ['.github/workflows/adzuna-evaluation.yml']
+  workflow_dispatch:
+    inputs:
+      market:
+        description: 'One market per manual run'
+        required: true
+        type: choice
+        options: [de, at, ch]
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+      github.event.head_commit.message == 'ci: retry bounded Adzuna evaluation' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        market: [de, at, ch]
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push' || inputs.market == matrix.market
+      - uses: actions/setup-python@v5
+        if: github.event_name == 'push' || inputs.market == matrix.market
+        with:
+          python-version: '3.12'
+      - name: Evaluate selected market (one API request)
+        if: github.event_name == 'push' || inputs.market == matrix.market
+        env:
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          ADZUNA_EVALUATION_APPROVED: '1'
+          MARKET: ${{ matrix.market }}
+        run: |
+          test -n "$ADZUNA_APP_ID" && test -n "$ADZUNA_APP_KEY" || {
+            echo 'Missing Adzuna secrets; no API request made'
+            exit 1
+          }
+          python -m packages.collectors.adzuna_quality --market "$MARKET" --limit 20

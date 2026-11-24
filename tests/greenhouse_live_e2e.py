@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "packages" / "signa
 from rules import summarize, detect, RULE_VERSION
 from compare_versions import compare
 from review import review_sample
+from opportunity import aggregate, markdown_report
 
 board = os.environ["GREENHOUSE_BOARD"]
 if not board or not board.replace("-", "").replace("_", "").isalnum():
@@ -54,6 +55,12 @@ with psycopg.connect(os.environ["DATABASE_URL"]) as conn:
         cur.execute("SELECT count(*) FROM job_events WHERE event_type='changed'")
         assert cur.fetchone()[0] == 1
 
+profiles = aggregate(jobs)
+report_dir = Path('out')
+report_dir.mkdir(exist_ok=True)
+(report_dir / 'stripe-opportunities.json').write_text(json.dumps({'board': board, 'postings_analyzed': len(jobs), 'profiles': profiles}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+(report_dir / 'stripe-opportunities.md').write_text(markdown_report(profiles), encoding='utf-8')
+print('OPPORTUNITY_EVIDENCE ' + json.dumps({'board': board, 'postings_analyzed': len(jobs), 'profiles': [{'company_key': p['company_key'], 'score': p['score'], 'raw_score': p['raw_score'], 'postings_with_signals': p['postings_with_signals'], 'category_counts': p['category_counts'], 'contributions': p['contributions']} for p in profiles]}, sort_keys=True))
 groups = summarize(jobs)
 review_queue = review_sample(jobs, detect, per_category=3, negatives=5)
 signal_counts = groups[0]["categories"] if groups else {}
