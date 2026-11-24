@@ -1,5 +1,8 @@
 name: Adzuna bounded evaluation
 on:
+  push:
+    branches: [feat/opportunity-intelligence-mvp]
+    paths: ['.github/workflows/adzuna-evaluation.yml']
   workflow_dispatch:
     inputs:
       market:
@@ -17,6 +20,12 @@ permissions:
   contents: read
 jobs:
   evaluate:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'ci: run one bounded Adzuna DACH evaluation'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        market: ${{ fromJSON(github.event_name == 'push' && '["de","at","ch"]' || format('["{0}"]', inputs.market)) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment: adzuna-evaluation
@@ -38,6 +47,6 @@ jobs:
           }
       - name: Evaluate one DACH market (one API request)
         env:
-          MARKET: ${{ inputs.market }}
-          LIMIT: ${{ inputs.limit }}
+          MARKET: ${{ matrix.market }}
+          LIMIT: ${{ inputs.limit || '20' }}
         run: python -m packages.collectors.adzuna_quality --market "$MARKET" --limit "$LIMIT"
